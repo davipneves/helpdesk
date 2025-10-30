@@ -31,6 +31,11 @@ function apiFetch(action, body) {
     })
 }
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 function formatarData(stringData) { 
     if (!stringData) return 'N/A'
     var data = new Date(stringData)
@@ -65,6 +70,34 @@ function preencherSelect(selectElement, options, valorPadrao, chaveId, chaveNome
              optionVazia.selected = true
              selectElement.appendChild(optionVazia)
          }
+<<<<<<< Updated upstream
+=======
+    }
+    options.forEach(function(op) { 
+        var option = document.createElement('option')
+        option.value = op[chaveId] 
+        option.textContent = op[chaveNome] 
+        if (valorPadrao !== null && valorPadrao !== undefined && String(op[chaveId]) === String(valorPadrao)) { 
+            option.selected = true 
+        } 
+        selectElement.appendChild(option) 
+    }) 
+}
+
+function renderizarHeader() { 
+    var template = document.getElementById('template-header')
+    var clone = template.content.cloneNode(true)
+    clone.getElementById('header-nome-usuario').textContent = usuarioAtual.nome.split(' ')[0]
+    clone.getElementById('header-titulo-portal').textContent = '| ' + (tipoUsuario === 'funcionario' ? 'Funcionário' : 'Técnico')
+    clone.getElementById('btn-logout').addEventListener('click', fazerLogout)
+    return clone 
+}
+        
+>>>>>>> Stashed changes
+function navegarPara(tela, id) {
+    if (tela !== 'detalhe-ticket') {
+        telaAnterior = telaAtual
+>>>>>>> Stashed changes
     }
     options.forEach(function(op) { 
         var option = document.createElement('option')

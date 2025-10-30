@@ -84,7 +84,16 @@ try {
             break;
 
         case 'getMeusTickets':
+<<<<<<< Updated upstream
             $solicitante_id = $request['solicitante_id'];
+=======
+<<<<<<< Updated upstream
+            $codFuncionario = $request['codFuncionario'];
+=======
+            $solicitante_id = $request['solicitante_id'];
+            
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
             $stmt = $mysqli->prepare("
                 SELECT T.*, TEC.nome AS nomeTecnico
                 FROM tickets AS T
@@ -251,8 +260,18 @@ try {
             $sql = "
                 SELECT T.*, F.nome AS nomeSolicitante, TEC.nome AS nomeTecnico
                 FROM tickets AS T
+<<<<<<< Updated upstream
                 JOIN funcionarios AS F ON T.solicitante_id = F.id
                 LEFT JOIN tecnicos AS TEC ON T.tecnico_id = TEC.id;
+=======
+<<<<<<< Updated upstream
+                JOIN funcionarios AS F ON T.codSolicitante = F.codFuncionario
+                LEFT JOIN tecnicos AS TEC ON T.codTecnico = TEC.codTecnico
+=======
+                JOIN funcionarios AS F ON T.solicitante_id = F.id
+                LEFT JOIN tecnicos AS TEC ON T.tecnico_id = TEC.id
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
             ";
             $whereConditions = [];
             if (!$mostrarTodos) { $whereConditions[] = "T.ativo = 1"; };
