@@ -500,7 +500,7 @@ function setupRelatorio() {
     var tbody = document.getElementById('lista-relatorio')
     document.getElementById('btn-voltar-dashboard-relatorio').addEventListener('click', function() { navegarPara('dashboard') })
     tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-500"><div class="spinner mx-auto"></div></td></tr>'
-    apiFetch('getRelatorioComJoin') 
+    apiFetch('getRelatorio') 
         .then(function(data) {
             tbody.innerHTML = '' 
             if (!data.relatorio || !data.relatorio.length) { tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-500">Nenhum ticket ativo encontrado.</td></tr>'; return }

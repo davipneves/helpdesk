@@ -287,7 +287,7 @@ try {
             $response['tickets'] = $tickets;
             break;
 
-        case 'getRelatorioComJoin':
+        case 'getRelatorio':
             $sql = "
                 SELECT T.id, T.assunto, T.estado, F.nome AS nomeSolicitante, D.nome AS nomeDepartamento 
                 FROM tickets AS T
