@@ -31,11 +31,7 @@ function apiFetch(action, body) {
     })
 }
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
+
 function formatarData(stringData) { 
     if (!stringData) return 'N/A'
     var data = new Date(stringData)
@@ -70,8 +66,7 @@ function preencherSelect(selectElement, options, valorPadrao, chaveId, chaveNome
              optionVazia.selected = true
              selectElement.appendChild(optionVazia)
          }
-<<<<<<< Updated upstream
-=======
+
     }
     options.forEach(function(op) { 
         var option = document.createElement('option')
@@ -93,11 +88,11 @@ function renderizarHeader() {
     return clone 
 }
         
->>>>>>> Stashed changes
+
 function navegarPara(tela, id) {
     if (tela !== 'detalhe-ticket') {
         telaAnterior = telaAtual
->>>>>>> Stashed changes
+
     }
     options.forEach(function(op) { 
         var option = document.createElement('option')
