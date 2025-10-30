@@ -111,7 +111,7 @@ try {
             $sqlBase = "
                 SELECT T.*, F.nome AS nomeSolicitante
                 FROM tickets AS T
-                JOIN funcionarios AS F ON T.solicitante_id = F.id
+                LEFT JOIN funcionarios AS F ON T.solicitante_id = F.id
                 WHERE T.ativo = 1 AND T.estado NOT IN ('fechado', 'resolvido')
             ";
 
@@ -144,10 +144,13 @@ try {
             $stmt = $mysqli->prepare("
                 SELECT 
                     T.*, F.nome AS nomeSolicitante, TEC.nome AS nomeTecnico,
+                    D.nome AS nomeDepartamento,
+                    T.excluido_por_cod, T.data_exclusao,
                     GROUP_CONCAT(PC.nome SEPARATOR ', ') AS palavras_chave
                 FROM tickets AS T
-                JOIN funcionarios AS F ON T.solicitante_id = F.id
+                LEFT JOIN funcionarios AS F ON T.solicitante_id = F.id
                 LEFT JOIN tecnicos AS TEC ON T.tecnico_id = TEC.id
+                LEFT JOIN departamentos AS D ON T.codDepartamentoOrigem = D.codigo
                 LEFT JOIN ticket_palavras AS TP ON T.id = TP.ticket_id
                 LEFT JOIN palavras_chave AS PC ON TP.palavra_id = PC.palavra_id
                 WHERE T.id = ?
@@ -222,15 +225,25 @@ try {
 
         case 'atualizarTicket':
             $tecnico_id = !empty($request['tecnico_id']) ? (int)$request['tecnico_id'] : null;
+            $urgencia = (int)$request['urgencia'];
+            $impacto = (int)$request['impacto'];
 
             $stmt = $mysqli->prepare(
-                "UPDATE tickets SET estado = ?, prioridade = ?, tecnico_id = ? WHERE id = ?"
+                "UPDATE tickets SET 
+                    estado = ?, 
+                    prioridade = ?, 
+                    tecnico_id = ?, 
+                    urgencia = ?, 
+                    impacto = ? 
+                WHERE id = ?"
             );
             $stmt->bind_param(
-                "siii",
+                "siiiii",
                 $request['estado'],
                 $request['prioridade'],
                 $tecnico_id,
+                $urgencia,
+                $impacto,
                 $request['id']
             );
 
@@ -246,11 +259,15 @@ try {
             $id = $request['id'];
             $codUsuarioExclusao = $request['codUsuario'];
             $stmt = $mysqli->prepare("
-                UPDATE tickets SET ativo = 0 
+                UPDATE tickets SET 
+                    ativo = 0, 
+                    excluido_por_cod = ?,
+                    data_exclusao = CURRENT_TIMESTAMP
                 WHERE id = ? AND ativo = 1
             ");
-            $stmt->bind_param("i", $id);
+            $stmt->bind_param("si", $codUsuarioExclusao, $id);
             $stmt->execute();
+
             if ($stmt->affected_rows > 0) {
                 $response['success'] = true;
                 $response['message'] = 'Ticket desativado com sucesso.';
@@ -265,10 +282,17 @@ try {
             $mostrarTodos = isset($request['mostrarTodos']) ? $request['mostrarTodos'] : false;
 
             $sql = "
-                SELECT T.*, F.nome AS nomeSolicitante, TEC.nome AS nomeTecnico
+               SELECT T.*, F.nome AS nomeSolicitante, TEC.nome AS nomeTecnico,
+                       D.nome AS nomeDepartamento,
+                       T.excluido_por_cod AS excluidoPor, 
+                       T.data_exclusao AS dataExclusao,
+                       COALESCE(F_EX.nome, T_EX.nome) AS nomeExcluiu
                 FROM tickets AS T
-                JOIN funcionarios AS F ON T.solicitante_id = F.id
+                LEFT JOIN funcionarios AS F ON T.solicitante_id = F.id
                 LEFT JOIN tecnicos AS TEC ON T.tecnico_id = TEC.id
+                LEFT JOIN departamentos AS D ON T.codDepartamentoOrigem = D.codigo
+                LEFT JOIN funcionarios AS F_EX ON T.excluido_por_cod = F_EX.codFuncionario
+                LEFT JOIN tecnicos AS T_EX ON T.excluido_por_cod = T_EX.codTecnico
             ";
             $whereConditions = [];
             if (!$mostrarTodos) {
@@ -304,29 +328,6 @@ try {
             };
             $response['success'] = true;
             $response['tickets'] = $tickets;
-            break;
-
-        case 'getRelatorio':
-            $sql = "
-                SELECT T.id, T.assunto, T.estado, F.nome AS nomeSolicitante, D.nome AS nomeDepartamento 
-                FROM tickets AS T
-                JOIN departamentos AS D ON T.codDepartamentoOrigem = D.codigo
-                JOIN funcionarios AS F ON T.solicitante_id = F.id
-                WHERE T.ativo = 1 
-                ORDER BY T.id DESC
-            ";
-
-            $result = $mysqli->query($sql);
-            if (!$result) {
-                $response['message'] = 'Erro na consulta SQL com JOIN: ' . $mysqli->error;
-                break;
-            }
-            $relatorio = [];
-            while ($row = $result->fetch_assoc()) {
-                $relatorio[] = $row;
-            };
-            $response['success'] = true;
-            $response['relatorio'] = $relatorio;
             break;
 
         default:

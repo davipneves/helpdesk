@@ -53,9 +53,9 @@
                     </form>
                 </div>
                 <div class="bg-gray-50 p-6 border-t border-gray-200">
-                    <h4 class="text-sm font-semibold text-gray-600 mb-3 text-center">Para Testar:</h4>
-                    <p class="text-xs text-gray-500 text-center">Func.: <strong id="email-teste-funcionario" class="text-blue-600 cursor-pointer">ana.silva@empresa.com</strong></p>
-                    <p class="text-xs text-gray-500 text-center mt-2">Técnico: <strong id="email-teste-tecnico" class="text-blue-600 cursor-pointer">carlos.souza@empresa.com</strong></p>
+                    <h4 class="text-sm font-semibold text-gray-600 mb-3 text-center">logins teste:</h4>
+                    <p class="text-xs text-gray-500 text-center">func: <strong id="email-teste-funcionario" class="text-blue-600 cursor-pointer">ana.silva@empresa.com</strong></p>
+                    <p class="text-xs text-gray-500 text-center mt-2">tec: <strong id="email-teste-tecnico" class="text-blue-600 cursor-pointer">carlos.souza@empresa.com</strong></p>
                 </div>
             </div>
         </div>
@@ -102,11 +102,10 @@
     <template id="template-tecnico-dashboard">
         <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
             <div class="flex justify-end gap-4">
-                <button id="btn-ir-relatorio" class="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300">relatório por departamento</button>
-                <button id="btn-ir-historico" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300">histórico de tickets</button>
+                <button id="btn-ir-historico" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300">Histórico de Tickets</button>
             </div>
             <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-                <div class="p-4 sm:p-6"><h3 class="text-lg font-semibold text-gray-800">Meus Chamados Atribuídos</h3></div>
+                <div class="p-4 sm:p-6"><h3 class="text-lg font-semibold text-gray-800">Meus Chamados</h3></div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assunto</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prioridade</th></tr></thead>
@@ -115,7 +114,7 @@
                 </div>
             </div>
             <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-                <div class="p-4 sm:p-6"><h3 class="text-lg font-semibold text-gray-800">Chamados Não Atribuídos</h3></div>
+                <div class="p-4 sm:p-6"><h3 class="text-lg font-semibold text-gray-800">Chamados Sem Técnicos</h3></div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assunto</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prioridade</th></tr></thead>
@@ -161,7 +160,10 @@
     <template id="template-detalhe-ticket">
         <main class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 mt-8">
             <button id="btn-voltar-detalhe" class="mb-6 text-sm font-medium text-blue-600 hover:text-blue-800">&larr; Voltar</button>
-            <div id="alerta-ticket-inativo" class="hidden mb-4 p-4 text-sm text-yellow-800 rounded-lg bg-yellow-50" role="alert"><span class="font-medium">Atenção!</span> Este ticket está inativo e não pode ser editado.</div>
+            <div id="alerta-ticket-inativo" class="hidden mb-4 p-4 text-sm text-yellow-800 rounded-lg bg-yellow-50" role="alert">
+                <span class="font-medium">Atenção!</span> Este ticket está inativo.
+                <span id="detalhe-exclusao-info" class="font-normal"></span>
+            </div>
             <div class="bg-white shadow-xl rounded-lg overflow-hidden">
                  <div class="bg-gray-50 px-6 py-5 border-b border-gray-200"><h3 class="text-xl font-bold text-gray-900 leading-6" id="detalhe-id">Ticket #...</h3><p class="mt-1 max-w-2xl text-sm text-gray-500" id="detalhe-assunto">...</p></div>
                 <div class="grid grid-cols-1 md:grid-cols-3">
@@ -170,12 +172,17 @@
                         <h4 class="text-lg font-semibold text-gray-800 mb-4">Detalhes</h4>
                         <dl class="grid grid-cols-1 gap-y-6">
                             <div><dt class="text-sm font-medium text-gray-500">Solicitante</dt><dd class="mt-1 text-sm text-gray-900" id="detalhe-solicitante">---</dd></div>
+                            <div><dt class="text-sm font-medium text-gray-500">Departamento</dt><dd class="mt-1 text-sm text-gray-900" id="detalhe-departamento">---</dd></div>
                             <div><dt class="text-sm font-medium text-gray-500">Data de Abertura</dt><dd class="mt-1 text-sm text-gray-900" id="detalhe-data">---</dd></div>
-                            <div><dt class="text-sm font-medium text-gray-500">Urgência</dt><dd class="mt-1 text-sm text-gray-900" id="detalhe-urgencia">---</dd></div>
-                            <div><dt class="text-sm font-medium text-gray-500">Impacto</dt><dd class="mt-1 text-sm text-gray-900" id="detalhe-impacto">---</dd></div>
                             <div id="container-palavras-chave" class="hidden"><dt class="text-sm font-medium text-gray-500">Palavras-chave</dt><dd class="mt-1 text-sm text-gray-900" id="detalhe-palavras-chave">---</dd></div>
-                            <div><label for="detalhe-estado" class="block text-sm font-medium text-gray-500">Estado</label><select id="detalhe-estado" disabled class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed focus:outline-none"></select></div>
+                            
+                            <div><label for="detalhe-urgencia" class="block text-sm font-medium text-gray-500">Urgência</label><select id="detalhe-urgencia" disabled class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed focus:outline-none"></select></div>
+                            <div><label for="detalhe-impacto" class="block text-sm font-medium text-gray-500">Impacto</label><select id="detalhe-impacto" disabled class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed focus:outline-none"></select></div>
                             <div><label for="detalhe-prioridade" class="block text-sm font-medium text-gray-500">Prioridade</label><select id="detalhe-prioridade" disabled class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed focus:outline-none"><option value="1">Baixa</option><option value="2">Média</option><option value="3">Alta</option></select></div>
+                            
+                            <hr class="my-2 border-t border-gray-200"/>
+
+                            <div><label for="detalhe-estado" class="block text-sm font-medium text-gray-500">Estado</label><select id="detalhe-estado" disabled class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed focus:outline-none"></select></div>
                             <div><label for="detalhe-tecnico" class="block text-sm font-medium text-gray-500">Técnico Atribuído</label><select id="detalhe-tecnico" disabled class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed focus:outline-none"><option value="">Não atribuído</option></select></div>
                         </dl>
                         <button id="btn-salvar-ticket" disabled class="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hidden">Salvar Alterações</button>
@@ -213,8 +220,9 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Abertura</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Departamento</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Técnico</th>
-                                <th id="th-acoes" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden">Ações</th>
+                                <th id="th-acoes" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden">Excluir</th>
                             </tr>
                         </thead>
                         <tbody id="lista-historico-tickets" class="bg-white divide-y divide-gray-200"></tbody>
@@ -224,32 +232,6 @@
         </main>
     </template>
 
-    <template id="template-relatorio">
-        <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <div class="mb-4 flex justify-between items-center">
-                <h2 class="text-2xl font-bold text-gray-800">Tickets Ativos por Departamento</h2>
-                <button id="btn-voltar-dashboard-relatorio" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition duration-300">&larr; Voltar ao Dashboard</button>
-            </div>
-            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assunto</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Departamento</th>
-                            </tr>
-                        </thead>
-                        <tbody id="lista-relatorio" class="bg-white divide-y divide-gray-200"></tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-    </template>
-
-    <script src="script.js?v=2"></script>
-</body>
+    <script src="script.js"></script> </body>
 
 </html>
