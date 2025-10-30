@@ -260,12 +260,6 @@ try {
                 SELECT T.*, F.nome AS nomeSolicitante, TEC.nome AS nomeTecnico
                 FROM tickets AS T
                 JOIN funcionarios AS F ON T.solicitante_id = F.id
-                LEFT JOIN tecnicos AS TEC ON T.tecnico_id = TEC.id;
-
-                JOIN funcionarios AS F ON T.codSolicitante = F.codFuncionario
-                LEFT JOIN tecnicos AS TEC ON T.codTecnico = TEC.codTecnico
-
-                JOIN funcionarios AS F ON T.solicitante_id = F.id
                 LEFT JOIN tecnicos AS TEC ON T.tecnico_id = TEC.id
             ";
             $whereConditions = [];

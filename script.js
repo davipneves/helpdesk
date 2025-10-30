@@ -31,7 +31,6 @@ function apiFetch(action, body) {
     })
 }
 
-
 function formatarData(stringData) { 
     if (!stringData) return 'N/A'
     var data = new Date(stringData)
@@ -66,33 +65,6 @@ function preencherSelect(selectElement, options, valorPadrao, chaveId, chaveNome
              optionVazia.selected = true
              selectElement.appendChild(optionVazia)
          }
-
-    }
-    options.forEach(function(op) { 
-        var option = document.createElement('option')
-        option.value = op[chaveId] 
-        option.textContent = op[chaveNome] 
-        if (valorPadrao !== null && valorPadrao !== undefined && String(op[chaveId]) === String(valorPadrao)) { 
-            option.selected = true 
-        } 
-        selectElement.appendChild(option) 
-    }) 
-}
-
-function renderizarHeader() { 
-    var template = document.getElementById('template-header')
-    var clone = template.content.cloneNode(true)
-    clone.getElementById('header-nome-usuario').textContent = usuarioAtual.nome.split(' ')[0]
-    clone.getElementById('header-titulo-portal').textContent = '| ' + (tipoUsuario === 'funcionario' ? 'Funcionário' : 'Técnico')
-    clone.getElementById('btn-logout').addEventListener('click', fazerLogout)
-    return clone 
-}
-        
-
-function navegarPara(tela, id) {
-    if (tela !== 'detalhe-ticket') {
-        telaAnterior = telaAtual
-
     }
     options.forEach(function(op) { 
         var option = document.createElement('option')
@@ -480,8 +452,7 @@ function setupHistorico() {
         })
         apiFetch('getHistoricoTickets', { filtro: filtroAtivo, mostrarTodos: mostrarInativos })
         .then(function(data) { renderizarTabelaHistorico(data.tickets) })
-        .catch(function(err) { console.error("Erro ao buscar histórico:", err)
-        mostrarErro("Erro ao carregar o histórico.") })
+        .catch(function(err) { console.error("Erro ao buscar histórico:", err); mostrarErro("Erro ao carregar o histórico.") })
     }
 
     containerFiltros.addEventListener('click', function(e) { 
@@ -489,8 +460,7 @@ function setupHistorico() {
             var filtro = e.target.getAttribute('data-filtro'); 
             buscarHistorico(filtro, checkMostrarInativos.checked) } 
         })
-    
-    checkMostrarInativos.addEventListener('change', function() { 
+        checkMostrarInativos.addEventListener('change', function() { 
         buscarHistorico(filtroAtivo, checkMostrarInativos.checked) 
     })
     buscarHistorico('todos', false)
