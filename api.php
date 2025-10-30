@@ -84,16 +84,15 @@ try {
             break;
 
         case 'getMeusTickets':
-<<<<<<< Updated upstream
+
             $solicitante_id = $request['solicitante_id'];
-=======
-<<<<<<< Updated upstream
+
+
             $codFuncionario = $request['codFuncionario'];
-=======
+
             $solicitante_id = $request['solicitante_id'];
             
->>>>>>> Stashed changes
->>>>>>> Stashed changes
+
             $stmt = $mysqli->prepare("
                 SELECT T.*, TEC.nome AS nomeTecnico
                 FROM tickets AS T
