@@ -262,7 +262,7 @@ function setupNovoTicket() {
 function setupDetalheTicket() {
     var btnVoltar = document.getElementById('btn-voltar-detalhe')
     btnVoltar.addEventListener('click', function() { navegarPara(telaAnterior) })
-
+    
     var selectEstado = document.getElementById('detalhe-estado')
     var selectPrioridade = document.getElementById('detalhe-prioridade')
     var selectTecnico = document.getElementById('detalhe-tecnico')

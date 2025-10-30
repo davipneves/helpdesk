@@ -1,3 +1,6 @@
+create database helpdesk_db;
+
+
 USE helpdesk_db;
 
 DROP TABLE IF EXISTS ticket_palavras;
@@ -66,6 +69,8 @@ CREATE TABLE tickets (
   urgencia tinyint(1) NOT NULL DEFAULT 1,
   prioridade tinyint(1) NOT NULL DEFAULT 1,
   ativo tinyint(1) NOT NULL DEFAULT 1,
+  dataExclusao datetime DEFAULT NULL,
+  excluidoPor varchar(20) DEFAULT NULL,
   PRIMARY KEY (id),
   KEY fk_ticket_solicitante (solicitante_id),
   KEY fk_ticket_tecnico (tecnico_id),
