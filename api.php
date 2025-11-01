@@ -1,19 +1,24 @@
 <?php
 
+ini_set('default_charset', 'UTF-8'); //para ver se aceita acentos nessa bomba
+
 $dbHost = '127.0.0.1'; //alterar aqui se der problema
 $dbUser = 'root';
 $dbPass = '';
 $dbName = 'helpdesk_db';
 
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
+
 $mysqli = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
 
 if ($mysqli->connect_error) {
     echo json_encode(['success' => false, 'message' => 'Erro de conexão com o banco: ' . $mysqli->connect_error]);
     exit();
 }
+
 $mysqli->set_charset("utf8mb4");
+$mysqli->query("SET NAMES 'utf8mb4'");;
 
 $jsonInput = file_get_contents('php://input');
 $request = json_decode($jsonInput, true);
@@ -32,10 +37,9 @@ try {
         case 'login':
             $email = $request['email'];
             $tipo = $request['tipo'];
-            $tabela = ($tipo == 'funcionario') ? 'funcionarios' : 'tecnicos';
-
-            $stmt = $mysqli->prepare("SELECT * FROM $tabela WHERE email = ?");
-            $stmt->bind_param("s", $email);
+            
+            $stmt = $mysqli->prepare("SELECT * FROM usuarios WHERE email = ? AND tipo = ?");
+            $stmt->bind_param("ss", $email, $tipo);
             $stmt->execute();
             $result = $stmt->get_result();
 
@@ -74,7 +78,9 @@ try {
             break;
 
         case 'getTecnicos':
-            $result = $mysqli->query("SELECT id, codTecnico, nome FROM tecnicos ORDER BY nome ASC");
+            // --- CORREÇÃO: Busca técnicos na tabela 'usuarios' ---
+            // Retorna 'codigo' ao invés de 'codTecnico' (embora o frontend só use id e nome)
+            $result = $mysqli->query("SELECT id, codigo, nome FROM usuarios WHERE tipo = 'tecnico' ORDER BY nome ASC");
             $tecnicos = [];
             while ($row = $result->fetch_assoc()) {
                 $tecnicos[] = $row;
@@ -84,13 +90,13 @@ try {
             break;
 
         case 'getMeusTickets':
-
             $solicitante_id = $request['solicitante_id'];
 
+            // --- CORREÇÃO: LEFT JOIN aponta para 'usuarios' ---
             $stmt = $mysqli->prepare("
                 SELECT T.*, TEC.nome AS nomeTecnico
                 FROM tickets AS T
-                LEFT JOIN tecnicos AS TEC ON T.tecnico_id = TEC.id
+                LEFT JOIN usuarios AS TEC ON T.tecnico_id = TEC.id
                 WHERE T.solicitante_id = ? AND T.ativo = 1 
                 ORDER BY T.dataAbertura DESC
             ");
@@ -108,10 +114,11 @@ try {
 
         case 'getFilaTecnico':
             $tecnico_id = $request['tecnico_id'];
+            
             $sqlBase = "
                 SELECT T.*, F.nome AS nomeSolicitante
                 FROM tickets AS T
-                LEFT JOIN funcionarios AS F ON T.solicitante_id = F.id
+                LEFT JOIN usuarios AS F ON T.solicitante_id = F.id
                 WHERE T.ativo = 1 AND T.estado NOT IN ('fechado', 'resolvido')
             ";
 
@@ -141,21 +148,35 @@ try {
 
         case 'getTicket':
             $id = $request['id'];
+            
+            /* * --- CORREÇÃO (Início) ---
+             * 1. JOINs de funcionario (F) e tecnico (TEC) apontam para 'usuarios'.
+             * 2. Adicionado JOIN para 'usuarios' (EXCL) para buscar o NOME de quem excluiu.
+             * 3. 'nomeExcluiu' adicionado ao SELECT.
+             * 4. Alterado de 'excluido_por_cod' para 'excluido_por_id'
+            */
             $stmt = $mysqli->prepare("
                 SELECT 
-                    T.*, F.nome AS nomeSolicitante, TEC.nome AS nomeTecnico,
+                    T.*, 
+                    F.nome AS nomeSolicitante, 
+                    TEC.nome AS nomeTecnico,
                     D.nome AS nomeDepartamento,
-                    T.excluido_por_cod, T.data_exclusao,
+                    EXCL.nome AS nomeExcluiu, /* <-- Pega o nome de quem excluiu */
+                    T.excluido_por_id, /* <-- CORREÇÃO: Usar _id */
+                    T.data_exclusao,
                     GROUP_CONCAT(PC.nome SEPARATOR ', ') AS palavras_chave
                 FROM tickets AS T
-                LEFT JOIN funcionarios AS F ON T.solicitante_id = F.id
-                LEFT JOIN tecnicos AS TEC ON T.tecnico_id = TEC.id
+                LEFT JOIN usuarios AS F ON T.solicitante_id = F.id
+                LEFT JOIN usuarios AS TEC ON T.tecnico_id = TEC.id
+                LEFT JOIN usuarios AS EXCL ON T.excluido_por_id = EXCL.id /* <-- CORREÇÃO: JOIN por _id */
                 LEFT JOIN departamentos AS D ON T.codDepartamentoOrigem = D.codigo
                 LEFT JOIN ticket_palavras AS TP ON T.id = TP.ticket_id
                 LEFT JOIN palavras_chave AS PC ON TP.palavra_id = PC.palavra_id
                 WHERE T.id = ?
                 GROUP BY T.id
             ");
+            /* * --- CORREÇÃO (Fim) --- */
+            
             $stmt->bind_param("i", $id);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -256,17 +277,19 @@ try {
             break;
 
         case 'desativarTicket':
+            /* * --- CORREÇÃO (Início) --- */
             $id = $request['id'];
-            $codUsuarioExclusao = $request['codUsuario'];
+            $idUsuarioExclusao = $request['usuario_id']; // Recebe o ID numérico do script.js
             $stmt = $mysqli->prepare("
                 UPDATE tickets SET 
                     ativo = 0, 
-                    excluido_por_cod = ?,
+                    excluido_por_id = ?, /* <-- CORREÇÃO: Usar _id */
                     data_exclusao = CURRENT_TIMESTAMP
                 WHERE id = ? AND ativo = 1
             ");
-            $stmt->bind_param("si", $codUsuarioExclusao, $id);
+            $stmt->bind_param("ii", $idUsuarioExclusao, $id); // <-- CORREÇÃO: Bind "ii" (int, int)
             $stmt->execute();
+            /* * --- CORREÇÃO (Fim) --- */
 
             if ($stmt->affected_rows > 0) {
                 $response['success'] = true;
@@ -282,18 +305,20 @@ try {
             $mostrarTodos = isset($request['mostrarTodos']) ? $request['mostrarTodos'] : false;
 
             $sql = "
-               SELECT T.*, F.nome AS nomeSolicitante, TEC.nome AS nomeTecnico,
+               SELECT T.*, 
+                       F.nome AS nomeSolicitante, 
+                       TEC.nome AS nomeTecnico,
                        D.nome AS nomeDepartamento,
-                       T.excluido_por_cod AS excluidoPor, 
+                       T.excluido_por_id AS excluidoPor, /* <-- CORREÇÃO: Usar _id */
                        T.data_exclusao AS dataExclusao,
-                       COALESCE(F_EX.nome, T_EX.nome) AS nomeExcluiu
+                       EXCL.nome AS nomeExcluiu
                 FROM tickets AS T
-                LEFT JOIN funcionarios AS F ON T.solicitante_id = F.id
-                LEFT JOIN tecnicos AS TEC ON T.tecnico_id = TEC.id
+                LEFT JOIN usuarios AS F ON T.solicitante_id = F.id
+                LEFT JOIN usuarios AS TEC ON T.tecnico_id = TEC.id
                 LEFT JOIN departamentos AS D ON T.codDepartamentoOrigem = D.codigo
-                LEFT JOIN funcionarios AS F_EX ON T.excluido_por_cod = F_EX.codFuncionario
-                LEFT JOIN tecnicos AS T_EX ON T.excluido_por_cod = T_EX.codTecnico
+                LEFT JOIN usuarios AS EXCL ON T.excluido_por_id = EXCL.id /* <-- CORREÇÃO: JOIN por _id */
             ";
+            
             $whereConditions = [];
             if (!$mostrarTodos) {
                 $whereConditions[] = "T.ativo = 1";
@@ -306,7 +331,7 @@ try {
                     $whereConditions[] = "WEEK(T.dataAbertura, 1) = WEEK(CURDATE(), 1) AND YEAR(T.dataAbertura) = YEAR(CURDATE())";
                     break;
                 case 'mes':
-                    $whereConditions[] = "MONTH(T.dataAbertura) = MONTH(CURDATE()) AND YEAR(T.dataAbertura) = YEAR(CURDATE())";
+                    $whereConditions[] = "MONTH(T.dataAbertURA) = MONTH(CURDATE()) AND YEAR(T.dataAbertura) = YEAR(CURDATE())";
                     break;
                 case 'ano':
                     $whereConditions[] = "YEAR(T.dataAbertura) = YEAR(CURDATE())";
@@ -339,4 +364,5 @@ try {
 }
 
 $mysqli->close();
-echo json_encode($response);
+echo json_encode($response, JSON_UNESCAPED_UNICODE);
+?>

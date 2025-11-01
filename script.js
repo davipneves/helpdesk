@@ -1,3 +1,4 @@
+charset="utf-8"
 var usuarioAtual = null
 var tipoUsuario = null
 var telaAtual = 'carregando'
@@ -5,12 +6,18 @@ var ticketSelecionadoId = null
 var listaTecnicosCache = []
 var telaAnterior = 'dashboard'
 
-var ESTADOS_TICKET = [{ id: 'aberto', nome: 'Aberto' },{ id: 'em_andamento', nome: 'Em Andamento' },{ id: 'aguardando_usuario', nome: 'Aguardando Usuário' },{ id: 'resolvido', nome: 'Resolvido' },{ id: 'fechado', nome: 'Fechado' }]
+
+/* --- CORREÇÃO (Início) --- */
+// Removido 'aguardando_usuario' e 'pendente'
+var ESTADOS_TICKET = [{ id: 'aberto', nome: 'Aberto' },{ id: 'em_andamento', nome: 'Em Andamento' },{ id: 'resolvido', nome: 'Resolvido' },{ id: 'fechado', nome: 'Fechado' }]
+/* --- CORREÇÃO (Fim) --- */
+
+
 var MAPA_PRIORIDADE = { 1: 'Baixa', 2: 'Média', 3: 'Alta' }
-var MAPA_IMPACTO = { 1: 'Baixo', 2: 'Médio', 3: 'Alto' }
+var MAPA_IMPACTO = { 1: 'Baixo', 2: 'Média', 3: 'Alto' }
 var MAPA_URGENCIA = { 1: 'Baixa', 2: 'Média', 3: 'Alta' }
 var OPCOES_URGENCIA = [{ id: 1, nome: 'Baixa' }, { id: 2, nome: 'Média' }, { id: 3, nome: 'Alta' }]
-var OPCOES_IMPACTO = [{ id: 1, nome: 'Baixo' }, { id: 2, nome: 'Médio' }, { id: 3, nome: 'Alto' }]
+var OPCOES_IMPACTO = [{ id: 1, nome: 'Baixo' }, { id: 2, nome: 'Média' }, { id: 3, nome: 'Alto' }]
 
 
 var appContainer = document.getElementById('app')
@@ -173,8 +180,8 @@ function setupDashboardFuncionario() {
                 var tr = document.createElement('tr')
                 tr.className = "hover:bg-gray-50 cursor-pointer transition duration-150"
                 var estado = ESTADOS_TICKET.find(function(e) { return e.id === ticket.estado }) || { id: ticket.estado, nome: ticket.estado }
-                var corEstado = (estado.id === 'fechado' || estado.id === 'resolvido') ? 'bg-green-100 text-green-800' : estado.id === 'aberto' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'
-                tr.innerHTML = '<td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">' + ticket.assunto + '</div><div class="text-sm text-gray-500">#' + ticket.id + '</div></td>' +
+                var corEstado = (estado.id === 'fechado' || estado.id === 'resolvido') ? 'bg-red-100 text-red-800' : estado.id === 'aberto' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'
+                tr.innerHTML = '<td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">' + ticket.assunto + '</div><div class="text-sm text-gray-500">Ticket: ' + ticket.id + '</div></td>' +
                     '<td class="px-6 py-4 whitespace-nowrap"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ' + corEstado + '">' + estado.nome + '</span></td>' +
                     '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">' + formatarData(ticket.dataAbertura) + '</td>' +
                     '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">' + (ticket.nomeTecnico || 'Não atribuído') + '</td>'
@@ -191,7 +198,8 @@ function setupDashboardTecnico() {
     var tbodyNaoAtribuidos = document.getElementById('lista-tickets-nao-atribuidos')
     function renderizarTabela(tbody, tickets) {
          tbody.innerHTML = ''
-         if (!tickets || tickets.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-gray-500">Você não tem chamado(s) no momento</td></tr>'; return }
+         if (!tickets || tickets.length === 0) { 
+            tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-gray-500">Você não tem chamado(s) no momento</td></tr>'; return }
          tickets.forEach(function(ticket) {
             var tr = document.createElement('tr')
             tr.className = "hover:bg-gray-50 cursor-pointer transition duration-150"
@@ -199,7 +207,7 @@ function setupDashboardTecnico() {
             var corEstado = (estado.id === 'aberto') ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'
             var prioridadeTexto = MAPA_PRIORIDADE[ticket.prioridade] || ticket.prioridade
             var corPrioridade = (ticket.prioridade >= 3) ? 'text-red-600' : (ticket.prioridade == 2) ? 'text-yellow-600' : 'text-green-600'
-            tr.innerHTML = '<td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">' + ticket.assunto + '</div><div class="text-sm text-gray-500">#' + ticket.id + '</div></td>' +
+            tr.innerHTML = '<td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">' + ticket.assunto + '</div><div class="text-sm text-gray-500">Ticket: ' + ticket.id + '</div></td>' +
                 '<td class="px-6 py-4 whitespace-nowrap"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ' + corEstado + '">' + estado.nome + '</span></td>' +
                 '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">' + (ticket.nomeSolicitante || 'N/A') + '</td>' + 
                 '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium ' + corPrioridade + '">' + prioridadeTexto + '</td>'
@@ -248,7 +256,7 @@ function setupNovoTicket() {
             codDepartamentoOrigem: usuarioAtual.codDepartamento, 
             urgencia: parseInt(selectUrgencia.value), 
             impacto: parseInt(selectImpacto.value),  
-            prioridade: 2,
+            prioridade: 2, 
         }
 
         apiFetch('criarTicket', novoTicket)
@@ -288,7 +296,7 @@ function setupDetalheTicket() {
     var promessaTecnicos = Promise.resolve(null) 
 
     if (tipoUsuario === 'tecnico') {
-        promessaTecnicos = apiFetch('getTecnicos')
+        promessaTecnicos = apiFetch('getTecnicos') 
             .then(function(data) {
                 listaTecnicosCache = data.tecnicos
                 preencherSelect(selectTecnico, listaTecnicosCache, null, 'id', 'nome') 
@@ -306,9 +314,6 @@ function setupDetalheTicket() {
             }
 
             var ticket = dataTicket.ticket
-
-            //console.log('passou aqui');
-            
             var elId = document.getElementById('detalhe-id')
             var elAssunto = document.getElementById('detalhe-assunto')
             var elDescricao = document.getElementById('detalhe-descricao')
@@ -318,7 +323,7 @@ function setupDetalheTicket() {
             var containerPalavras = document.getElementById('container-palavras-chave')
             var elPalavras = document.getElementById('detalhe-palavras-chave')
 
-            if (elId) elId.textContent = 'Ticket #' + ticket.id
+            if (elId) elId.textContent = 'Ticket: ' + ticket.id
             if (elAssunto) elAssunto.textContent = ticket.assunto
             if (elDescricao) elDescricao.textContent = ticket.descricao
             if (elSolicitante) elSolicitante.textContent = ticket.nomeSolicitante
@@ -345,8 +350,15 @@ function setupDetalheTicket() {
                 if(alertaInativo) alertaInativo.classList.remove('hidden')
                 
                 var elExclusaoInfo = document.getElementById('detalhe-exclusao-info')
-                if (elExclusaoInfo && ticket.excluido_por_cod && ticket.data_exclusao) {
-                    elExclusaoInfo.textContent = ' Foi excluído por '+ ticket.nomeTecnico +', código de funcionário: ' + ticket.excluido_por_cod + '. ' +'Em ' + formatarData(ticket.data_exclusao) + '.'
+            
+                if (elExclusaoInfo && ticket.data_exclusao) {
+                    var info = ' Em ' + formatarData(ticket.data_exclusao) + '.';
+                    if (ticket.nomeExcluiu) {
+                        info = ' Foi excluído por ' + ticket.nomeExcluiu + '.' + info;
+                    } else if (ticket.excluido_por_id) {
+                        info = ' Foi excluído pelo usuário (ID: ' + ticket.excluido_por_id + ').' + info;
+                    }
+                    elExclusaoInfo.textContent = info;
                 }
                 
                 camposEditaveis.forEach(function(campo) { if(campo) campo.disabled = true })
@@ -432,18 +444,18 @@ function setupHistorico() {
             if (ticket.dataExclusao && ticket.excluidoPor) {
                 var infoExclusao = 'Excluído em ' + formatarData(ticket.dataExclusao);
                 var nome = ticket.nomeExcluiu; 
-                var cod = ticket.excluidoPor;
+                var cod = ticket.excluidoPor; 
 
-                if (nome && cod) {
-                    infoExclusao += ' por ' + nome + ' (' + cod + ')';
+                if (nome) {
+                    infoExclusao += ' por ' + nome;
                 } else if (cod) {
-                    infoExclusao += ' por ' + cod;
+                    infoExclusao += ' por usuário (ID: ' + cod + ')';
                 }
                 tooltipExclusao = ' title="' + infoExclusao + '"';
             }
 
             tr.innerHTML =
-                '<td class="px-6 py-4 whitespace-nowrap"' + tooltipExclusao + '><div class="text-sm font-medium text-gray-900">' + ticket.assunto + '</div><div class="text-sm text-gray-500">#' + ticket.id + '</div></td>' +
+                '<td class="px-6 py-4 whitespace-nowrap"' + tooltipExclusao + '><div class="text-sm font-medium text-gray-900">' + ticket.assunto + '</div><div class="text-sm text-gray-500">Ticket: ' + ticket.id + '</div></td>' +
                 '<td class="px-6 py-4 whitespace-nowrap"' + tooltipExclusao + '><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ' + corEstado + '">' + estado.nome + '</span></td>' +
                 '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"' + tooltipExclusao + '>' + formatarData(ticket.dataAbertura) + '</td>' +
                 '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"' + tooltipExclusao + '>' + (ticket.nomeSolicitante || 'N/A') + '</td>' + 
@@ -464,10 +476,12 @@ function setupHistorico() {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation() 
                 var idParaDesativar = e.target.getAttribute('data-id')
-                if (confirm('Tem certeza que deseja "excluir" (desativar) o ticket #' + idParaDesativar + '?')) {
-                    var codUsuarioAtual = (tipoUsuario === 'tecnico') ? usuarioAtual.codTecnico : usuarioAtual.codFuncionario
+                if (confirm('Tem certeza que deseja "excluir" (desativar) o ticket: ' + idParaDesativar + '?')) {
                     
-                    apiFetch('desativarTicket', { id: idParaDesativar, codUsuario: codUsuarioAtual })
+
+                    var idUsuarioAtual = usuarioAtual.id 
+                    
+                    apiFetch('desativarTicket', { id: idParaDesativar, usuario_id: idUsuarioAtual })
                     .then(function(data) { buscarHistorico(filtroAtivo, checkMostrarInativos.checked) })
                     .catch(function(err) { mostrarErro(err.message || "Falha ao desativar ticket.") })
                 }
@@ -505,8 +519,9 @@ function fazerLogin(email, tipo) {
             if (data.success && data.usuario) {
                 usuarioAtual = data.usuario
                 tipoUsuario = tipo
-                try { localStorage.setItem('helpdesk_usuario', JSON.stringify(usuarioAtual)); l
-                    ocalStorage.setItem('helpdesk_tipoUsuario', tipoUsuario) 
+                try { 
+                    localStorage.setItem('helpdesk_usuario', JSON.stringify(usuarioAtual)); 
+                    localStorage.setItem('helpdesk_tipoUsuario', tipoUsuario) 
                 } catch (e) { 
                     console.error("Erro ao salvar no localStorage:", e) 
                 }
