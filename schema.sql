@@ -3,25 +3,13 @@ create database helpdesk_db;
 
 USE helpdesk_db;
 
-DROP TABLE IF EXISTS ticket_palavras;
-DROP TABLE IF EXISTS tickets;
-DROP TABLE IF EXISTS palavras_chave;
-DROP TABLE IF EXISTS funcionarios;
-DROP TABLE IF EXISTS tecnicos;
-DROP TABLE IF EXISTS equipes;
-DROP TABLE IF EXISTS departamentos;
 
-CREATE TABLE departamentos (
-  codigo smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-  nome varchar(25) NOT NULL,
-  PRIMARY KEY (codigo)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ CREATE TABLE 'departamentos' (
+  'codigo' smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  'nome' varchar(25) NOT NULL,
+  PRIMARY KEY (`codigo`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 
-CREATE TABLE equipes (
-  codigo smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
-  nome varchar(100) NOT NULL,
-  PRIMARY KEY (codigo)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE funcionarios (
   id smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -101,9 +89,9 @@ INSERT INTO funcionarios (codFuncionario, nome, email, codDepartamento) VALUES
 ('RH0001', 'Ana Silva', 'ana.silva@empresa.com', 1),
 ('RH0002', 'Bruno Costa', 'bruno.costa@empresa.com', 2);
 
-INSERT INTO tecnicos (codTecnico, nome, email, codEquipe) VALUES
-('TI0001', 'Carlos Souza', 'carlos.souza@empresa.com', 1),
-('TI0002', 'Daniela Lima', 'daniela.lima@empresa.com', 2);
+INSERT INTO tecnicos (codTecnico, nome, email) VALUES
+('TI0001', 'Carlos Souza', 'carlos.souza@empresa.com'),
+('TI0002', 'Daniela Lima', 'daniela.lima@empresa.com');
 
 INSERT INTO tickets (assunto, descricao, dataAbertura, estado, solicitante_id, codDepartamentoOrigem, urgencia, impacto, prioridade, tecnico_id, ativo) VALUES
 ('Impressora não funciona', 'A impressora do financeiro (HP-2055) não está imprimindo. Luz piscando.', '2025-10-26 14:30:00', 'aberto', 2, 2, 2, 2, 2, NULL, 1);

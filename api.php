@@ -74,7 +74,7 @@ try {
             break;
 
         case 'getTecnicos':
-            $result = $mysqli->query("SELECT id, codTecnico, nome, codEquipe FROM tecnicos ORDER BY nome ASC");
+            $result = $mysqli->query("SELECT id, codTecnico, nome FROM tecnicos ORDER BY nome ASC");
             $tecnicos = [];
             while ($row = $result->fetch_assoc()) {
                 $tecnicos[] = $row;

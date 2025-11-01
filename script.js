@@ -346,7 +346,7 @@ function setupDetalheTicket() {
                 
                 var elExclusaoInfo = document.getElementById('detalhe-exclusao-info')
                 if (elExclusaoInfo && ticket.excluido_por_cod && ticket.data_exclusao) {
-                    elExclusaoInfo.textContent = ' Foi excluído por ' + ticket.excluido_por_cod + ' em ' + formatarData(ticket.data_exclusao) + '.'
+                    elExclusaoInfo.textContent = ' Foi excluído por '+ ticket.nomeTecnico +', código de funcionário: ' + ticket.excluido_por_cod + '. ' +'Em ' + formatarData(ticket.data_exclusao) + '.'
                 }
                 
                 camposEditaveis.forEach(function(campo) { if(campo) campo.disabled = true })
