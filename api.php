@@ -153,8 +153,8 @@ try {
                     F.nome AS nomeSolicitante, 
                     TEC.nome AS nomeTecnico,
                     D.nome AS nomeDepartamento,
-                    EXCL.nome AS nomeExcluiu, /* <-- Pega o nome de quem excluiu */
-                    T.excluido_por_id, /* <-- CORREÇÃO: Usar _id */
+                    EXCL.nome AS nomeExcluiu, 
+                    T.excluido_por_id, 
                     T.data_exclusao,
                     GROUP_CONCAT(PC.nome SEPARATOR ', ') AS palavras_chave
                 FROM tickets AS T
@@ -275,7 +275,7 @@ try {
             $stmt = $mysqli->prepare("
                 UPDATE tickets SET 
                     ativo = 0, 
-                    excluido_por_id = ?, /* <-- CORREÇÃO: Usar _id */
+                    excluido_por_id = ?, 
                     data_exclusao = CURRENT_TIMESTAMP
                 WHERE id = ? AND ativo = 1
             ");
